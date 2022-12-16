@@ -1,0 +1,7 @@
+[deps]
+AutomationLabs = "16c52a8d-d77f-496f-9be6-47c8df57b84b"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+
+[compat]
+Documenter = "0.27"
+AutomationLabs = "0.1"

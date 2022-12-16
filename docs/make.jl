@@ -51,3 +51,6 @@ makedocs(
 	]
 )
 
+deploydocs(
+    repo = "github.com/AutomationLabs-sh/AutomationLabs.jl.git",
+)
