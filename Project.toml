@@ -1,7 +1,7 @@
 name = "AutomationLabs"
 uuid = "16c52a8d-d77f-496f-9be6-47c8df57b84b"
 authors = ["Pierre Blaud <pierre.blaud@ikmail.com> and contributors"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 AutomationLabsDepot = "cc8afec4-1da4-4339-ab39-14f2715a249b"
