@@ -112,9 +112,7 @@ julia> model(:tune;
 
 where, `computation_maximum_time` is the time allocated for tuning with the hyperparameters optimization and it requires `Dates` package.  `model_architecture` allows you to select the type of model. So, for a non-linear model with a feedforward neural networks, it is `model_architecture = "Fnn"`. For example, it is possible to set other parameters, more information can be found in the guides section:
 
-{% content-ref url="../guides/administrate-models/" %}
-[administrate-models](../guides/administrate-models/)
-{% endcontent-ref %}
+[Interact with models](@ref)
 
 It is possible to present information about the best tuning model:
 

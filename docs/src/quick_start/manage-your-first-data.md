@@ -89,9 +89,7 @@ julia> data(:io,
 
 where `:io` is the input-output information, `inputs_data_name` is the raw data of the dynamical system inputs, `outputs_data_name` is the raw data of the dynamical system outputs, `project_name` is the project where the raw are located and where the io data will be located, `data_name` is the name of the io data. There are additional parameters that allow the data to be processed. For example, it is possible to set a low or high limit on the data, more information can be found in the guides section:
 
-{% content-ref url="../guides/administrate-data/" %}
-[administrate-data](../guides/administrate-data/)
-{% endcontent-ref %}
+[Interact with data](@ref)
 
 You can list all the io data available on a project:
 
