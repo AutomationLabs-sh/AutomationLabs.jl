@@ -1,6 +1,6 @@
 AutomationLabs is a package for dynamical system identification and Model Predictive Control. It is written in Julia and provides different algorithm approach for identification and tuning (black box, linear, mixed-integer or non-linear optimization).
 
-Read the documentation [here](https://pierre-bl.gitbook.io/automationlabs.jl-documentation/).
+Read the documentation [here](https://automationlabs-sh.github.io/AutomationLabs.jl/).
 
 ## How to Contribute
 
