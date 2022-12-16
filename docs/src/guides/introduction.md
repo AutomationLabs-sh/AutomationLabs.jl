@@ -4,7 +4,7 @@ In this section, you will find detailed information on how AutomationLabs works,
 
 ## Summary
 
-[Interact with projects](@ref)
-[Interact with data](@ref)
-[Interact with models](@ref)
-[Interact with controllers](@ref)
+* [Interact with projects](@ref)
+* [Interact with data](@ref)
+* [Interact with models](@ref)
+* [Interact with controllers](@ref)

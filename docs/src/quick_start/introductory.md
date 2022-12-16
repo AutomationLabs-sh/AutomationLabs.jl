@@ -21,8 +21,8 @@ AutomationLabs allows you to reduce engineering time, save time, and evaluate di
 
 ## Quick start summary
 
-[Manage your first data](@ref)
-[Tune your first model](@ref)
-[Tune your first controller](@ref)
+* [Manage your first data](@ref)
+* [Tune your first model](@ref)
+* [Tune your first controller](@ref)
 
 

@@ -90,9 +90,7 @@ You now have a model of the quadruple tank process. It is now possible to go to 
 
 The first desired controller is a linear model predictive control with a quadratic cost function. To learn more about the control you can go to the guides section:
 
-{% content-ref url="../guides/administrate-controllers/model-predictive-control.md" %}
-[model-predictive-control.md](../guides/administrate-controllers/model-predictive-control.md)
-{% endcontent-ref %}
+[Model predictive control](@ref])
 
 The linearization of the non linear model is performed at the state and input references. However, it is required to defined the constraints and the references, such as:
 
