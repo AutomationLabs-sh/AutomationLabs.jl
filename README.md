@@ -1,3 +1,9 @@
+# AutomationLabs.jl
+
+[![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
+[![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
+![CI](https://github.com/AutomationLabs-sh/AutomationLabsDepot.jl/actions/workflows/ci.yml/badge.svg)
+
 AutomationLabs is a package for dynamical system identification and Model Predictive Control. It is written in Julia and provides different algorithm approach for identification and tuning (black box, linear, mixed-integer or non-linear optimization).
 
 Read the documentation [here](https://automationlabs-sh.github.io/AutomationLabs.jl/).

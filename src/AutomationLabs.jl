@@ -28,6 +28,7 @@ export model
 export config
 export dash
 export controller
+export system
 
 # Load files
 include("data_cli.jl")
@@ -35,5 +36,7 @@ include("model_cli.jl")
 include("project_cli.jl")
 include("dash_cli.jl")
 include("controller_cli.jl")
+include("system_cli.jl")
+include("types.jl")
 
 end

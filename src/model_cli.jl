@@ -31,6 +31,10 @@ function model(args; kws...)
         # List information about model after tuning 
         _model_stats(kws)
 
+    elseif args == :create 
+        # User create a model, it can be linear or non linear with dims information
+        _model_create(kws)
+
     else
         # Wrong arguments
         @error "Unrecognized argument"
@@ -305,3 +309,99 @@ function _model_stats(kws_)
 
     return nothing
 end
+
+# model create
+"""
+    _model_create
+Create a model from user defined, linear or non-linear model.
+"""
+function _model_create(kws_)
+
+    # Get argument kws
+    dict_kws = Dict{Symbol,Any}(kws_)
+    kws = get(dict_kws, :kws, kws_)
+
+    # Evaluate if project name param is present
+    if haskey(kws, :project_name) == true
+        project_name = kws[:project_name]
+    else
+        @error "Unrecognized project name"
+        return nothing
+    end
+
+    # Get the model name choosen by user or get a randomized name
+    if haskey(kws, :model_name) == true
+        model_name = kws[:model_name]
+    else
+        @warn "Unrecognized model name"
+        model_name = Random.randstring('a':'z', 6)
+        @info "Random model name is provided: $(model_name)"
+    end
+
+    # Evaluate if state dim is present
+    if haskey(kws, :nbr_state) == true
+        nbr_state = kws[:nbr_state]
+    else
+        @error "Unrecognized state number"
+        return nothing
+    end
+
+    # Evaluate if input dim is present
+    if haskey(kws, :nbr_input) == true
+        nbr_input = kws[:nbr_input]
+    else
+        @error "Unrecognized input number"
+        return nothing
+    end
+
+    # Get the model state matrix
+    if haskey(kws, :A) == true
+        A = kws[:A]
+    end
+
+    # Get the model input matrix
+    if haskey(kws, :B) == true
+        B = kws[:B]
+    end
+   
+    # Get the f function, if user defenied non linear model
+    if haskey(kws, :f) == true
+        f = kws[:f]
+    end
+
+    # Evaluate if continuous or discrete model
+    if haskey(kws, :variation) == true
+        variation = kws[:variation]
+    else
+        @error "Unrecognized continuous or discrete variation"
+        return nothing
+    end
+
+    if variation == "continuous" && haskey(kws, :A) == true
+        # It is a continuous variation and linear model
+        model = ContinuousLinearModel(A, B, nbr_state, nbr_input)
+    end
+
+    if variation == "discrete" && haskey(kws, :A) == true
+        model = DiscreteLinearModel(A, B, nbr_state, nbr_input)
+    end
+
+    if variation == "continuous" && haskey(kws, :f) == true
+        # It is a continuous variation and non-model
+        model = ContinuousNonLinearModel(f, nbr_state, nbr_input)
+    end
+
+    if variation == "discrete" && haskey(kws, :f) == true
+        # It is a discrete variation and non-model
+        model = DiscreteNonLinearModel(f, nbr_state, nbr_input)
+    end
+
+    if @isdefined(model) == true
+        #save the model into folder and database
+        AutomationLabsDepot.add_model_local_folder_db(model, project_name, model_name)
+    else 
+        @error "Model not created"
+    end
+
+end
+    

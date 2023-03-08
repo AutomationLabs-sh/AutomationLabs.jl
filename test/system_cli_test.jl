@@ -5,13 +5,13 @@
 # was not distributed with this file,  				   #
 # You can obtain one at https://mozilla.org/MPL/2.0/.  #
 ########################################################
-module ModelTest
+module SystemTest
 
 using Test
 using Dates
 using AutomationLabs
 
-@testset "Training the first model" begin
+@testset "Tuning a system from a identified model" begin
 
     project(:create, name = "qtp_test")
 
@@ -52,67 +52,25 @@ using AutomationLabs
         model_architecture = "linear",
     )
 
-    model(
-        :tune;
-        project_name = "qtp_test",
-        model_name = "test_fnn_threads2",
-        io = "io_qtp",
-        computation_verbosity = 5,
-        computation_solver = "radam",
-        computation_maximum_time = Dates.Minute(5),
-        model_architecture = "fnn",
-        computation_processor = "cpu_threads",
+    model(:ls, project_name = "qtp_test")
+
+    system(:tune,
+           project_name = "qtp_test", 
+           system_name = "system_1", 
+           model_name = "test_1",
+           input_connstraint = u_cons, 
+           state_constraint = x_cons,      
     )
 
-    model(:stats, project_name = "qtp_test", model_name = "test_fnn_threads2")
+    system(:ls, project_name = "qtp_test")
 
-    model(:ls, project_name = "qtp_test")
+    system(:rm, project_name = "qtp_test")
 
     model(:rm, project_name = "qtp_test", model_name = "test_1")
 
-    model(:rm, project_name = "qtp_test", model_name = "test_fnn_threads2")
-
-    data(:rmio, project_name = "qtp_test", data_name = "io_qtp")
-
-    data(:rmraw, project_name = "qtp_test", data_name = "data_inputs_m3h")
-
-    data(:rmraw, project_name = "qtp_test", data_name = "data_outputs")
-
-    project(:rm, name = "qtp_test")
-
-end
 
 
-@testset "Create a user defined linear model" begin
 
-    A = [
-        1 1
-        0 0.9
-    ]
-    B = [1; 0.5]
-    nbr_state = 2
-    nbr_input = 1
-
-    project(:create, name = "qtp_test")
-
-    project(:ls)
-
-    model(
-        :create;
-        project_name = "qtp_test",
-        model_name = "user_linear_1",
-        variation = "discrete",
-        A = A,
-        B = B, 
-        nbr_state = nbr_state,
-        nbr_input = nbr_input,
-    )
-
-    model(:ls, project_name = "qtp_test")
-
-    model(:rm, project_name = "qtp_test", model_name = "user_linear_1")
-
-    project(:rm, name = "qtp_test")
 
 end
 
