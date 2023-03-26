@@ -1,5 +1,11 @@
 # AutomationLabs Changelog
 
+## v0.1.3
+
+* Improve CLI with tables and show_all.
+* Tests improvement.
+* Documentation improvement.
+
 ## v0.1.2
 
 * Add Systems cli.

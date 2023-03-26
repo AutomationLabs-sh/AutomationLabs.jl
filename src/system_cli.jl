@@ -19,7 +19,8 @@ function system(args; kws...)
         _system_tune(kws)
 
     elseif args == :ls
-        _system_ls(kws)
+        rslt = _system_ls(kws)
+        return rslt
 
     elseif args == :rm
         _system_rm(kws)
@@ -59,18 +60,18 @@ function _system_ls(kws_)
         return nothing
     end
 
+    # Get user selection for ploting cli 
+    show_all = get(kws, :show_all, false)
+
     system_table_ls =
         AutomationLabsDepot.list_system_local_folder_db(string(project_name))
 
-    if size(system_table_ls, 1) == 0
-        @info "There is no system in $(project_name) folder"
-
-    elseif size(system_table_ls, 1) != 0
-        #There is at least a system in the database
+    # Evaluate if print is requested
+    if show_all == true 
 
         print_table_ls = Array{String}(undef, size(system_table_ls, 1), 5)
-        for i = 1:1:size(controller_table_ls, 1)
-
+        
+        for i = 1:1:size(system_table_ls, 1)
             print_table_ls[i, 1] = system_table_ls[!, :id][i]
             print_table_ls[i, 2] = string(project_name)
             print_table_ls[i, 3] = system_table_ls[!, :name][i]
@@ -83,11 +84,13 @@ function _system_ls(kws_)
             header = ["Id", "Project", "Systems", "Added", "Size"],
             alignment = :l,
             border_crayon = PrettyTables.crayon"blue",
+            tf = PrettyTables.tf_matrix,
         )
-    else
-        @warn "Unrecognized system name"
+
+        return nothing 
     end
-    return nothing
+
+    return system_table_ls
 end
 
 """
@@ -116,25 +119,12 @@ function _system_rm(kws_)
         return nothing
     end
 
-    # Remove a data from a project
-    print("Do you want to remove ")
-    printstyled("$(system_name) ", bold = true)
-    print("from project ")
-    print("$(project_name) [y/n] (y): ")
-    n = readline()
-
-    if n == "y" || n == "yes"
-
-        result = AutomationLabsDepot.remove_controller_local_folder_db(
+    result = AutomationLabsDepot.remove_system_local_folder_db(
             string(project_name),
             string(system_name),
-        )
-        if result == true
-            @info "$(system_name) from project $(project_name) is removed"
-        end
-
-    else
-        @info "$(system_name) from project $(project_name) is not removed"
+    )
+    if result == true
+        @info "$(system_name) from project $(project_name) is removed"
     end
     return nothing
 end
@@ -233,25 +223,48 @@ function _system_tune(kws_)
     end
 
     # Get the input constraint 
-    if haskey(kws, :input_constraint) == true
+#=    if haskey(kws, :input_constraint) == true
         input_constraint = kws[:input_constraint]
     end
 
     # Get the state constraint 
     if haskey(kws, :state_constraint) == true
         state_constraint = kws[:state_constraint]
-    end
+    end=#
 
     # Load the model machine mlj from hard drive and database 
-    machine_mlj = AutomationLabsDepot.load_model_local_folder_db(
+    global model_loaded = AutomationLabsDepot.load_model_local_folder_db(
         string(project_name),
         string(model_name),
     )
 
-    system = AutomationLabsSystems.proceed_system(model_method, model_origin, f = machine_mlj ; kws) 
+    # Evaluation of linear user model
+    if isdefined(model_loaded, :A) == true
+        #It is a linear model 
+        if  occursin("Discrete", string(typeof(model_loaded))) == true
+            variation = "discrete"
+        end
 
-    if @isdefined(rslt) == true
-        #save the system into folder and database
+        if  occursin("Continuous", string(typeof(model_loaded))) == true
+            variation = "continuous"
+        end
+
+        system = AutomationLabsSystems.proceed_system(model_loaded.A, model_loaded.B, model_loaded.nbr_state, model_loaded.nbr_input, variation; kws) 
+        AutomationLabsDepot.add_system_local_folder_db(system, project_name, system_name)
+    end
+
+    # Evaluation of non linear user model
+    if isdefined(model_loaded, :f) == true
+        # It is a non linear model 
+        if  occursin("Discrete", string(typeof(model_loaded))) == true
+            variation = "discrete"
+        end
+
+        if  occursin("Continuous", string(typeof(model_loaded))) == true
+            variation = "continuous"
+        end
+
+        system = AutomationLabsSystems.proceed_system(model_loaded.f, model_loaded.nbr_input, variation; kws) 
         AutomationLabsDepot.add_system_local_folder_db(system, project_name, system_name)
     end
 

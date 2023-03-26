@@ -68,9 +68,58 @@ using AutomationLabs
 
     model(:rm, project_name = "qtp_test", model_name = "test_1")
 
+end
 
 
+@testset "Create a system from user defined discrete linear model" begin
 
+    A = [
+        1 1
+        0 0.9
+    ]
+    B = [1; 0.5]
+    nbr_state = 2
+    nbr_input = 1
+
+    x_cons =  [0.2 1.2;
+               0.2 1.2;       
+    ]
+
+    u_cons = [0  4;
+              0   4]
+
+    project(:create, name = "qtp_test")
+
+    project(:ls)
+
+    model(
+        :create;
+        project_name = "qtp_test",
+        model_name = "user_linear",
+        variation = "discrete",
+        A = A,
+        B = B, 
+        nbr_state = nbr_state,
+        nbr_input = nbr_input,
+    )
+
+    model(:ls, project_name = "qtp_test")
+
+    system(:tune,
+        project_name = "qtp_test", 
+        system_name = "system_1", 
+        model_name = "user_linear",
+        input_constraint = u_cons, 
+        state_constraint = x_cons,      
+    )
+
+    system(:ls, project_name = "qtp_test" )
+
+    system(:rm, project_name = "qtp_test", system_name = "system_1",)
+
+    model(:rm, project_name = "qtp_test", model_name = "user_linear")
+
+    project(:rm, name = "qtp_test")
 
 end
 

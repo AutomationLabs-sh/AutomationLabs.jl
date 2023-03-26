@@ -8,14 +8,11 @@
 
 module AutomationLabs
 
-print(" \n\nWelcome to ")
-print("Automation")
-printstyled("Labs", bold = true, color = :black)
-
 # Import packages
 import AutomationLabsDepot
 import AutomationLabsIdentification
 import AutomationLabsModelPredictiveControl
+import AutomationLabsSystems
 import JLD # need in module: https://github.com/JuliaIO/JLD.jl/issues/252
 import PrettyTables
 import Dates
@@ -37,6 +34,7 @@ include("project_cli.jl")
 include("dash_cli.jl")
 include("controller_cli.jl")
 include("system_cli.jl")
-include("types.jl")
+
+
 
 end

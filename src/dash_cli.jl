@@ -24,13 +24,15 @@ function dash(args; kws...)
         return figure
 
     elseif args == :model
-        _dash_model(kws)
+        figure = _dash_model(kws)
+        return figure 
 
     elseif args == :ls
-        _dash_ls(kws)
+        result = _dash_ls(kws)
+        return result
 
     elseif args == :rm
-        _dash_rm(kws)
+        result = _dash_rm(kws)
 
     else
         # Wrong arguments
@@ -85,28 +87,14 @@ function _dash_rawdata(kws_)
         @info "Random dashboard name is provided: $(dash_name)"
     end
 
-    # Add a dashboard to a project
-    print("Do you want to create ")
-    printstyled("$(dash_name) ", bold = true)
-    print("dashboard, with ")
-    printstyled("$(recipe) ", bold = true)
-    print("plot [y/n] (y): ")
-    n = readline()
-
-    if n == "y" || n == "y"
-
-        figure = AutomationLabsDepot.add_rawdata_dashboard_local_folder_db(
-            string(project_name),
-            string(data_name),
-            string(recipe),
-            string(dash_name);
-            kws,
-        )
-
-    else
-        @info "$(dash_name) dashboard is not created"
-    end
-    return figure
+    figure = AutomationLabsDepot.add_rawdata_dashboard_local_folder_db(
+        string(project_name),
+        string(data_name),
+        string(recipe),
+        string(dash_name);
+        kws,
+    )
+    return nothing
 end
 
 """
@@ -152,29 +140,15 @@ function _dash_iodata(kws_)
         @info "Random dashboard name is provided: $(dash_name)"
     end
 
-    # Add a dashboard to a project
-    print("Do you want to create ")
-    printstyled("$(dash_name) ", bold = true)
-    print("dashboard, with ")
-    printstyled("$(recipe) ", bold = true)
-    print("plot [y/n] (y): ")
-    n = readline()
+    figure = AutomationLabsDepot.add_iodata_dashboard_local_folder_db(
+        string(project_name),
+        string(data_name),
+        string(recipe),
+        string(dash_name);
+        kws,
+    )
 
-    if n == "y" || n == "y"
-
-        figure = AutomationLabsDepot.add_iodata_dashboard_local_folder_db(
-            string(project_name),
-            string(data_name),
-            string(recipe),
-            string(dash_name);
-            kws,
-        )
-
-    else
-        @info "$(dash_name) dashboard is not created"
-        return nothing
-    end
-    return figure
+    return nothing
 end
 
 """
@@ -225,12 +199,13 @@ function _dash_ls(kws_)
         return nothing
     end
 
+    # Get user selection for ploting cli 
+    show_all = get(kws, :show_all, false)
+
     dash_table_ls = AutomationLabsDepot.list_dash_local_folder_db(string(project_name))
-
-    if size(dash_table_ls, 1) == 0
-        @info "There is no dashboard in $(project_name) folder"
-
-    elseif size(dash_table_ls, 1) != 0
+    
+    # Evaluate if print is requested
+    if show_all == true 
 
         print_table_ls = Array{String}(undef, size(dash_table_ls, 1), 5)
 
@@ -247,11 +222,12 @@ function _dash_ls(kws_)
             header = ["Id", "Project", "Dashboards", "Added", "Size"],
             alignment = :l,
             border_crayon = PrettyTables.crayon"blue",
+            tf = PrettyTables.tf_matrix,
         )
-    else
-        @warn "Unrecognized project name"
+        return nothing
     end
-    return nothing
+
+    return dash_table_ls
 end
 
 # dash rm
@@ -281,25 +257,13 @@ function _dash_rm(kws_)
         return nothing
     end
 
-    # Remove a dash from a project
-    print("Do you want to remove ")
-    printstyled("$(dash_name_rm) ", bold = true)
-    print("from project ")
-    print("$(project_name) [y/n] (y): ")
-    n = readline()
-
-    if n == "y" || n == "yes"
-
-        result = AutomationLabsDepot.remove_dash_local_folder_db(
-            string(project_name),
-            string(dash_name_rm),
-        )
+    result = AutomationLabsDepot.remove_dash_local_folder_db(
+        string(project_name),
+        string(dash_name_rm),
+    )
         if result == true
             @info "$(dash_name_rm) from project $(project_name) is removed"
         end
 
-    else
-        @info "$(dash_name_rm) from project $(project_name) is not removed"
-    end
-    return nothing
+    return result
 end

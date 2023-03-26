@@ -16,13 +16,21 @@ using AutomationLabs
     project(:create, name = "jean_claude")
 
     #List project
-    project(:ls)
+    pjt = project(:ls)
+    project(:ls, show_all = true)
+
+    @test findall( x -> occursin("jean_claude", x), pjt[:, 1]) != Int64[]
 
     #remove project
     project(:rm, name = "jean_claude")
 
     #List project
-    project(:ls)
+    pjt_2 =  project(:ls)
+    project(:ls, show_all = true)
+
+    @test pjt != pjt_2
+
+    @test findall( x -> occursin("jean_claude", x), pjt_2[:, 1]) == Int64[]
 
 end
 

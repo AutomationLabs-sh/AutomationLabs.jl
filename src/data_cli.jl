@@ -16,34 +16,32 @@ Example:
 function data(args; kws...)
 
     if args == :add
-        _data_add(kws)
+        rslt = _data_add(kws)
 
     elseif args == :ls
-        _data_ls(kws)
+        rslt = _data_ls(kws)
 
     elseif args == :lsio
-        _data_lsio(kws)
+        rslt = _data_lsio(kws)
 
     elseif args == :lsraw
-        _data_lsraw(kws)
+        rslt = _data_lsraw(kws)
 
     elseif args == :rmraw
-        _data_rmraw(kws)
+        rslt = _data_rmraw(kws)
 
     elseif args == :rmio
-        _data_rmio(kws)
+        rslt = _data_rmio(kws)
 
     elseif args == :io
-        _data_io(kws)
+        rslt = _data_io(kws)
 
     else
         # Wrong arguments
         @error "Unrecognized argument"
     end
 
-    #to do more?
-
-    return nothing
+    return rslt
 end
 
 # data add
@@ -103,11 +101,15 @@ end
 """
     _data_ls
 """
-#import AutomationLabsDepot: list_data_local_folder
 function _data_ls(kws_)
 
-    _data_lsraw(kws_)
-    _data_lsio(kws_)
+    lsraw_rslt = _data_lsraw(kws_)
+    lsio_rslt = _data_lsio(kws_)
+
+    if (lsraw_rslt != nothing && lsio_rslt != nothing) == true
+        rslt = vcat(lsraw_rslt, lsio_rslt)
+        return rslt
+    end
 
     return nothing
 end
@@ -116,7 +118,6 @@ end
 """
     _data_lsio
 """
-#import AutomationLabsDepot: list_data_local_folder
 function _data_lsio(kws_)
 
     # Get argument kws
@@ -131,14 +132,17 @@ function _data_lsio(kws_)
         return nothing
     end
 
+    # Get user selection for ploting cli 
+    show_all = get(kws, :show_all, false)
+
     # Get the data inside project folder
     data_table_ls = AutomationLabsDepot.list_iodata_local_folder_db(string(project_name))
 
-    if size(data_table_ls, 1) == 0
-        @info "There are no iodata in $(project_name)"
-    elseif size(data_table_ls, 1) != 0
+    # Evaluate if print is requested
+    if show_all == true 
 
         print_table_ls = Array{String}(undef, size(data_table_ls, 1), 5)
+
         for i = 1:1:size(data_table_ls, 1)
             print_table_ls[i, 1] = data_table_ls[!, :id][i]
             print_table_ls[i, 2] = string(project_name)
@@ -149,21 +153,22 @@ function _data_lsio(kws_)
 
         PrettyTables.pretty_table(
             print_table_ls;
-            header = ["Id", "Project", "Io data", "Added", "Size"],
+            header = ["Id", "Project", "Io name", "Added", "Size"],
             alignment = :l,
             border_crayon = PrettyTables.crayon"blue",
+            tf = PrettyTables.tf_matrix,
         )
-    else
-        @warn "Unrecognized project name"
+
+        return nothing
     end
-    return nothing
+
+    return data_table_ls
 end
 
 # data lsraw
 """
     _data_lsraw
 """
-#import AutomationLabsDepot: list_data_local_folder
 function _data_lsraw(kws_)
 
     # Get argument kws
@@ -178,13 +183,14 @@ function _data_lsraw(kws_)
         return nothing
     end
 
+    # Get user selection for ploting cli 
+    show_all = get(kws, :show_all, false)
+
     # Get the data inside project folder
     data_table_ls = AutomationLabsDepot.list_rawdata_local_folder_db(string(project_name))
 
-    if size(data_table_ls, 1) == 0
-        @info "There are no rawdata in $(project_name)"
-
-    elseif size(data_table_ls, 1) != 0
+    # Evaluate if print is requested
+    if show_all == true 
 
         print_table_ls = Array{String}(undef, size(data_table_ls, 1), 5)# size(data_table_ls, 2) + 1)
         for i = 1:1:size(data_table_ls, 1)
@@ -197,14 +203,16 @@ function _data_lsraw(kws_)
 
         PrettyTables.pretty_table(
             print_table_ls;
-            header = ["Id", "Project", "Raw data", "Added", "Size"],
+            header = ["Id", "Project", "Raw name", "Added", "Size"],
             alignment = :l,
             border_crayon = PrettyTables.crayon"blue",
+            tf = PrettyTables.tf_matrix,
         )
-    else
-        @warn "Unrecognized project name"
+
+        return nothing
     end
-    return nothing
+
+    return data_table_ls
 end
 
 # data rm
@@ -233,27 +241,16 @@ function _data_rmraw(kws_)
         return nothing
     end
 
-    # Remove a data from a project
-    print("Do you want to remove ")
-    printstyled("$(data_name_rm) ", bold = true)
-    print("from project ")
-    print("$(project_name) [y/n] (y): ")
-    n = readline()
+    result = AutomationLabsDepot.remove_rawdata_local_folder_db(
+        string(project_name),
+        string(data_name_rm),
+    )
 
-    if n == "y" || n == "yes"
-
-
-        result = AutomationLabsDepot.remove_rawdata_local_folder_db(
-            string(project_name),
-            string(data_name_rm),
-        )
-        if result == true
-            @info "$(data_name_rm) from project $(project_name) is removed"
-        end
-    else
-        @info "$(data_name_rm) from project $(project_name) is not removed"
+    if result == true
+        @info "$(data_name_rm) from project $(project_name) is removed"
     end
-    return nothing
+
+    return result
 end
 
 # data rm
@@ -282,28 +279,16 @@ function _data_rmio(kws_)
         return nothing
     end
 
-    # Remove a data from a project
-    print("Do you want to remove ")
-    printstyled("$(data_name_rm) ", bold = true)
-    print("from project ")
-    print("$(project_name) [y/n] (y): ")
-    n = readline()
-
-    if n == "y" || n == "yes"
-
-        result = AutomationLabsDepot.remove_iodata_local_folder_db(
-            string(project_name),
-            string(data_name_rm),
-        )
-        if result == true
-            @info "$(data_name_rm) from project $(project_name) is removed"
-        end
-
-
-    else
-        @info "$(data_name_rm) from project $(project_name) is not removed"
+    result = AutomationLabsDepot.remove_iodata_local_folder_db(
+        string(project_name),
+        string(data_name_rm),
+    )
+ 
+    if result == true
+        @info "$(data_name_rm) from project $(project_name) is removed"
     end
-    return nothing
+
+    return result
 end
 
 const DEFAULT_PARAMETERS_IODATA = (
@@ -322,8 +307,6 @@ const DEFAULT_PARAMETERS_IODATA = (
     _data_io
 Create a iodata table file.
 """
-#import AutomationLabsDepot.add_controller_local_folder_db
-
 function _data_io(kws_)
 
     # Get argument kws
@@ -354,58 +337,47 @@ function _data_io(kws_)
         return nothing
     end
 
-    # merge data
-    print("Do you want to create the trainning data from ")
-    printstyled("$(inputs_data_name) ", bold = true)
-    print("and ")
-    printstyled("$(outputs_data_name) ", bold = true)
-    print("from project ")
-    print("$(project_name) [y/n] (y): ")
-    n = readline()
+    # Get default argument or kws
+    n_delay = get(dict_kws, :n_delay, DEFAULT_PARAMETERS_IODATA[:n_delay])
+    normalisation =
+        get(dict_kws, :normalisation, DEFAULT_PARAMETERS_IODATA[:normalisation])
+    data_lower_input =
+        get(dict_kws, :data_lower_input, DEFAULT_PARAMETERS_IODATA[:data_lower_input])
+    data_upper_input =
+        get(dict_kws, :data_upper_input, DEFAULT_PARAMETERS_IODATA[:data_upper_input])
+    data_lower_output =
+        get(dict_kws, :data_lower_output, DEFAULT_PARAMETERS_IODATA[:data_lower_output])
+    data_upper_output =
+        get(dict_kws, :data_upper_output, DEFAULT_PARAMETERS_IODATA[:data_upper_output])
+    data_type = get(dict_kws, :data_type, DEFAULT_PARAMETERS_IODATA[:data_type])
 
-    if n == "y" || n == "yes"
+    # Get the name of the iodata created 
+    if haskey(kws, :data_name) == true
+        data_name = kws[:data_name]
+    else
+        data_name = Random.randstring('a':'z', 6)
+        @info "Iodata name is provided: $(data_name)"
+    end
 
-        # Get default argument or kws
-        n_delay = get(dict_kws, :n_delay, DEFAULT_PARAMETERS_IODATA[:n_delay])
-        normalisation =
-            get(dict_kws, :normalisation, DEFAULT_PARAMETERS_IODATA[:normalisation])
-        data_lower_input =
-            get(dict_kws, :data_lower_input, DEFAULT_PARAMETERS_IODATA[:data_lower_input])
-        data_upper_input =
-            get(dict_kws, :data_upper_input, DEFAULT_PARAMETERS_IODATA[:data_upper_input])
-        data_lower_output =
-            get(dict_kws, :data_lower_output, DEFAULT_PARAMETERS_IODATA[:data_lower_output])
-        data_upper_output =
-            get(dict_kws, :data_upper_output, DEFAULT_PARAMETERS_IODATA[:data_upper_output])
-        data_type = get(dict_kws, :data_type, DEFAULT_PARAMETERS_IODATA[:data_type])
+    result = AutomationLabsDepot.iodata_local_folder_db(
+        inputs_data_name,
+        outputs_data_name,
+        project_name,
+        data_name,
+        n_delay,
+        normalisation,
+        data_lower_input,
+        data_upper_input,
+        data_lower_output,
+        data_upper_output,
+        data_type,
+    )
 
-        # Get the name of the iodata created 
-        if haskey(kws, :data_name) == true
-            data_name = kws[:data_name]
-        else
-            data_name = Random.randstring('a':'z', 6)
-            @info "Iodata name is provided: $(data_name)"
-        end
-
-        result = AutomationLabsDepot.iodata_local_folder_db(
-            inputs_data_name,
-            outputs_data_name,
-            project_name,
-            data_name,
-            n_delay,
-            normalisation,
-            data_lower_input,
-            data_upper_input,
-            data_lower_output,
-            data_upper_output,
-            data_type,
-        )
-
-        if result == true
-            @info "Iodata $(data_name) from project $(project_name) is created"
-        end
+    if result == true
+        @info "Iodata $(data_name) from project $(project_name) is created"
     else
         @info "Iodata from project $(project_name) is not created"
     end
+
     return nothing
 end

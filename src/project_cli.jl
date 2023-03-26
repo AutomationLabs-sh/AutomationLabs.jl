@@ -16,22 +16,23 @@ Example:
 function project(args; kws...)
 
     if args == :create
-        _project_create(kws)
+        rslt = _project_create(kws)
 
     elseif args == :ls
-        _project_ls()
+        rslt = _project_ls(kws)
 
     elseif args == :rm
-        _project_rm(kws)
+        rslt = _project_rm(kws)
 
     else
         # Wrong arguments
         @error "Unrecognized argument"
+        rslt = nothing
     end
 
     #to do more?
 
-    return nothing
+    return rslt
 end
 
 """
@@ -53,50 +54,75 @@ function _project_create(kws_)
         @info "Random project name is provided: $(project_name)"
     end
 
-    # Add a whole project
-    print("Do you want to create ")
-    printstyled("$(project_name) ", bold = true)
-    print("project [y/n] (y): ")
-    n = readline()
-
-    if n == "y" || n == "yes"
-
-        result = AutomationLabsDepot.project_folder_create_db(string(project_name))
-        if result == true
-            @info "Project $(project_name) is created"
-        end
-
-    else
-        @info "$(project_name) project is not designed"
+    result = AutomationLabsDepot.project_folder_create_db(string(project_name))
+        
+    if result == true
+        @info "Project $(project_name) is created"
     end
 
-    return nothing
+    return result
 end
 
 """
     _project_ls
 List projects avalaible.
 """
-function _project_ls()
+function _project_ls(kws_)
 
+        # Get argument kws
+    dict_kws = Dict{Symbol,Any}(kws_)
+    kws = get(dict_kws, :kws, kws_)
+
+    # Get user selection for ploting cli 
+    show_all = get(kws, :show_all, false)
+
+    # Get list of projects
     project_table_ls = AutomationLabsDepot.list_project_local_folder_db()
 
-    if size(project_table_ls, 1) == 0
-        @info "There is no project in the database"
+    # Memory allocation
+    data_tab = []
+    dash_tab = []
+    models_tab = []
+    controller_tab = []
+    system_tab = []
 
-    elseif size(project_table_ls, 1) != 0
+    # Get Data, Dash, Models, Systems, Controllers 
+    for i in project_table_ls
 
-        PrettyTables.pretty_table(
-            project_table_ls;
-            header = ["Project"],
-            alignment = :l,
-            border_crayon = PrettyTables.crayon"blue",
-        )
-    else
-        @warn "Unrecognized project name"
+        data_table_rawls = AutomationLabsDepot.list_rawdata_local_folder_db(string(i))
+        data_table_iols = AutomationLabsDepot.list_iodata_local_folder_db(string(i))
+        dash_table_ls = AutomationLabsDepot.list_dash_local_folder_db(string(i))
+        model_table_ls = AutomationLabsDepot.list_model_local_folder_db(string(i))
+        controller_table_ls = AutomationLabsDepot.list_controller_local_folder_db(string(i))
+        system_table_ls = AutomationLabsDepot.list_system_local_folder_db(string(i))
+
+        append!(data_tab, size(data_table_iols, 1) + size(data_table_rawls, 1))
+        append!(dash_tab, size(dash_table_ls, 1))
+        append!(models_tab, size(model_table_ls, 1))
+        append!(controller_tab, size(controller_table_ls, 1))
+        append!(system_tab, size(system_table_ls, 1))
+
     end
 
-    return nothing
+    # Concatenate the tables
+    tab = hcat(project_table_ls, data_tab, dash_tab, models_tab, system_tab, controller_tab)
+    
+    # Evaluate if print is requested
+    if show_all == true 
+        # Print pretty table
+        PrettyTables.pretty_table(
+            tab;
+            header = [ "Project", "Data", "Dashboards", "Models", "Systems", "Controllers"#,"Dash status","Models status","Systems status" 
+                        ],
+            alignment = :l,
+            border_crayon = PrettyTables.crayon"blue",
+            #columns_width = [10], 
+            tf = PrettyTables.tf_matrix
+        )
+        return nothing
+    end
+    
+    return tab
 end
 
 """
@@ -117,21 +143,9 @@ function _project_rm(kws_)
         return nothing
     end
 
-    # Remove a whole project
-    print("Do you want to remove ")
-    printstyled("$(project_name) ", bold = true)
-    print("project [y/n] (y): ")
-    n = readline()
-
-    if n == "y" || n == "yes"
-
-        result = AutomationLabsDepot.remove_project_local_folder_db(string(project_name))
-        if result == true
-            @info "Project $(project_name) is removed"
-        end
-    else
-        @info "$(project_name) project is not removed"
+    result = AutomationLabsDepot.remove_project_local_folder_db(string(project_name))
+    if result == true
+        @info "Project $(project_name) is removed"
     end
-
-    return nothing
+    return result
 end

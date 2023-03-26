@@ -17,23 +17,23 @@ function model(args; kws...)
 
     if args == :tune
         # Train a model from data
-        _model_tune(kws)
+       rslt = _model_tune(kws)
 
     elseif args == :ls
         # List all model available in local folder
-        _model_ls(kws)
+        rslt = _model_ls(kws)
 
     elseif args == :rm
         # Remove a tune model from local folder
-        _model_rm(kws)
+        rslt = _model_rm(kws)
 
     elseif args == :stats
         # List information about model after tuning 
-        _model_stats(kws)
+        rslt = _model_stats(kws)
 
     elseif args == :create 
         # User create a model, it can be linear or non linear with dims information
-        _model_create(kws)
+        rslt = _model_create(kws)
 
     else
         # Wrong arguments
@@ -42,7 +42,7 @@ function model(args; kws...)
 
     #to do more?
 
-    return nothing
+    return rslt
 end
 
 #NamedTuple default parameters definition
@@ -162,23 +162,22 @@ function _model_ls(kws_)
         return nothing
     end
 
+    # Get user selection for ploting cli 
+    show_all = get(kws, :show_all, false)
+
     model_table_ls = AutomationLabsDepot.list_model_local_folder_db(string(project_name))
-
-    if size(model_table_ls, 1) == 0
-        @info "There is no model in $(project_name) folder"
-
-    elseif size(model_table_ls, 1) != 0
-        #There is at least a model in the database
+    
+    # Evaluate if print is requested
+    if show_all == true 
 
         print_table_ls = Array{String}(undef, size(model_table_ls, 1), 5)
+        
         for i = 1:1:size(model_table_ls, 1)
-
             print_table_ls[i, 1] = model_table_ls[!, :id][i]
             print_table_ls[i, 2] = string(project_name)
             print_table_ls[i, 3] = model_table_ls[!, :name][i]
             print_table_ls[i, 4] = model_table_ls[!, :added][i]
             print_table_ls[i, 5] = model_table_ls[!, :size][i]
-
         end
 
         PrettyTables.pretty_table(
@@ -186,12 +185,12 @@ function _model_ls(kws_)
             header = ["Id", "Project", "Models", "Added", "Size"],
             alignment = :l,
             border_crayon = PrettyTables.crayon"blue",
+            tf = PrettyTables.tf_matrix,
         )
-    else
-        @warn "Unrecognized project name"
+        return nothing
     end
 
-    return nothing
+    return model_table_ls
 end
 
 """
@@ -220,29 +219,16 @@ function _model_rm(kws_)
         return nothing
     end
 
-    # Remove a data from a project
-    print("Do you want to remove ")
-    printstyled("$(model_name) ", bold = true)
-    print("from project ")
-    print("$(project_name) [y/n] (y): ")
-    n = readline()
+    result = AutomationLabsDepot.remove_model_local_folder_db(
+        string(project_name),
+        string(model_name),
+    )
 
-    if n == "y" || n == "yes"
-
-        result = AutomationLabsDepot.remove_model_local_folder_db(
-            string(project_name),
-            string(model_name),
-        )
-        if result == true
+    if result == true
             @info "$(model_name) from project $(project_name) is removed"
-        end
-
-    else
-        @info "$(model_name) from project $(project_name) is not removed"
     end
 
-    return nothing
-
+    return result
 end
 
 
@@ -272,42 +258,48 @@ function _model_stats(kws_)
         return nothing
     end
 
+    # Get user selection for ploting cli 
+    show_all = get(kws, :show_all, false)
 
     stats_ls_best_model = AutomationLabsDepot.stats_model_local_folder_db(
         string(project_name),
         string(model_name),
     )
 
+    if show_all == true
+    
+        print_table_ls = Array{Any}(undef, 1, 8)
 
-    print_table_ls = Array{Any}(undef, 1, 8)
+        print_table_ls[1, 1] = model_name
+        print_table_ls[1, 2] = stats_ls_best_model[1, 1]
+        print_table_ls[1, 3] = stats_ls_best_model[2, 1][1]
+        print_table_ls[1, 4] = stats_ls_best_model[3, 1]
+        print_table_ls[1, 5] = stats_ls_best_model[4, 1]
+        print_table_ls[1, 6] = stats_ls_best_model[5, 1]
+        print_table_ls[1, 7] = stats_ls_best_model[6, 1]
+        print_table_ls[1, 8] = stats_ls_best_model[7, 1]
 
-    print_table_ls[1, 1] = model_name
-    print_table_ls[1, 2] = stats_ls_best_model[1, 1]
-    print_table_ls[1, 3] = stats_ls_best_model[2, 1][1]
-    print_table_ls[1, 4] = stats_ls_best_model[3, 1]
-    print_table_ls[1, 5] = stats_ls_best_model[4, 1]
-    print_table_ls[1, 6] = stats_ls_best_model[5, 1]
-    print_table_ls[1, 7] = stats_ls_best_model[6, 1]
-    print_table_ls[1, 8] = stats_ls_best_model[7, 1]
+        PrettyTables.pretty_table(
+            print_table_ls;
+            header = [
+                "Models",
+                "Iteration",
+                "Loss best",
+                "Architecture",
+                "Neurons",
+                "Layers",
+                "Epochs",
+                "Activation function",
+            ],
+            alignment = :l,
+            border_crayon = PrettyTables.crayon"blue",
+            tf = PrettyTables.tf_matrix,
+        )
 
+        return nothing
+    end
 
-    PrettyTables.pretty_table(
-        print_table_ls;
-        header = [
-            "Models",
-            "Iteration",
-            "Loss best",
-            "Architecture",
-            "Neurons",
-            "Layers",
-            "Epochs",
-            "Activation function",
-        ],
-        alignment = :l,
-        border_crayon = PrettyTables.crayon"blue",
-    )
-
-    return nothing
+    return stats_ls_best_model
 end
 
 # model create
@@ -354,21 +346,6 @@ function _model_create(kws_)
         return nothing
     end
 
-    # Get the model state matrix
-    if haskey(kws, :A) == true
-        A = kws[:A]
-    end
-
-    # Get the model input matrix
-    if haskey(kws, :B) == true
-        B = kws[:B]
-    end
-   
-    # Get the f function, if user defenied non linear model
-    if haskey(kws, :f) == true
-        f = kws[:f]
-    end
-
     # Evaluate if continuous or discrete model
     if haskey(kws, :variation) == true
         variation = kws[:variation]
@@ -377,28 +354,12 @@ function _model_create(kws_)
         return nothing
     end
 
-    if variation == "continuous" && haskey(kws, :A) == true
-        # It is a continuous variation and linear model
-        model = ContinuousLinearModel(A, B, nbr_state, nbr_input)
-    end
-
-    if variation == "discrete" && haskey(kws, :A) == true
-        model = DiscreteLinearModel(A, B, nbr_state, nbr_input)
-    end
-
-    if variation == "continuous" && haskey(kws, :f) == true
-        # It is a continuous variation and non-model
-        model = ContinuousNonLinearModel(f, nbr_state, nbr_input)
-    end
-
-    if variation == "discrete" && haskey(kws, :f) == true
-        # It is a discrete variation and non-model
-        model = DiscreteNonLinearModel(f, nbr_state, nbr_input)
-    end
-
-    if @isdefined(model) == true
-        #save the model into folder and database
-        AutomationLabsDepot.add_model_local_folder_db(model, project_name, model_name)
+    if haskey(kws, :A) == true && haskey(kws, :B) == true && haskey(kws, :nbr_state) == true && haskey(kws, :nbr_input) == true
+        # It is a continuous or discrete variation and linear model
+        AutomationLabsDepot.add_model_local_folder_db(project_name, model_name, variation, kws[:A], kws[:B], nbr_state, nbr_input)
+    elseif haskey(kws, :f) == true && haskey(kws, :nbr_state) == true && haskey(kws, :nbr_input) == true
+        # It is a continuous or discrete variation and non-linear model
+        AutomationLabsDepot.add_model_local_folder_db(project_name, model_name, variation, kws[:f], nbr_state, nbr_input)
     else 
         @error "Model not created"
     end

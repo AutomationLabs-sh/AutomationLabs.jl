@@ -47,7 +47,7 @@ using JLD
         project_name = "qtp_test",
         model_name = "test_1",
         io = "io_qtp",
-        computation_verbosity = 5,
+        computation_verbosity = 0,
         computation_solver = "lls",
         computation_maximum_time = Dates.Minute(5),
         model_architecture = "linear",
@@ -58,9 +58,9 @@ using JLD
         project_name = "qtp_test",
         model_name = "test_2",
         io = "io_qtp",
-        computation_verbosity = 5,
+        computation_verbosity = 0,
         computation_solver = "radam",
-        computation_maximum_time = Dates.Minute(30),
+        computation_maximum_time = Dates.Minute(5),
         model_architecture = "fnn",
         computation_processor = "cpu_threads",
     )
@@ -77,7 +77,7 @@ using JLD
     qamax = 4
     qbmax = 3.26
 
-    #Constraint definition:
+    # Constraint definition:
     mpc_lower_state_constraints = [hmin, hmin, hmin, hmin]
     mpc_higher_state_constraints = [h1max, h2max, h3max, h4max]
     mpc_lower_input_constraints = [qmin, qmin]
@@ -85,6 +85,8 @@ using JLD
 
     mpc_state_reference = [0.65, 0.65, 0.65, 0.65]
     mpc_input_reference = [1.2, 1.2]
+
+    # Create the system
 
     c = controller(
         :tune;
@@ -175,5 +177,99 @@ end
     project(:rm, name = "qtp_test")
 
 end
+
+
+@testset "Create a MPC controller from a system from user defined discrete linear model" begin
+
+    A = [
+        1 1
+        0 0.9
+    ]
+    B = [1; 0.5]
+    nbr_state = 2
+    nbr_input = 1
+
+    x_cons =  [0.2 1.2;
+               0.2 1.2;       
+    ]
+
+    u_cons = [0  4;
+              0   4]
+
+    project(:create, name = "qtp_test")
+
+    project(:ls)
+
+    model(
+        :create;
+        project_name = "qtp_test",
+        model_name = "user_linear",
+        variation = "discrete",
+        A = A,
+        B = B, 
+        nbr_state = nbr_state,
+        nbr_input = nbr_input,
+    )
+
+    model(:ls, project_name = "qtp_test")
+
+    system(:tune,
+        project_name = "qtp_test", 
+        system_name = "system_1", 
+        model_name = "user_linear",
+        input_constraint = u_cons, 
+        state_constraint = x_cons,      
+    )
+
+    system(:ls, project_name = "qtp_test" )
+
+    # Controller definition 
+    hmin = 0.2
+    h1max = 1.36
+    h2max = 1.36
+    h3max = 1.30
+    h4max = 1.30
+    qmin = 0
+    qamax = 4
+    qbmax = 3.26
+    
+    #Constraint definition:
+    mpc_lower_state_constraints = [hmin, hmin, hmin, hmin]
+    mpc_higher_state_constraints = [h1max, h2max, h3max, h4max]
+    mpc_lower_input_constraints = [qmin, qmin]
+    mpc_higher_input_constraints = [qamax, qbmax]
+    
+    mpc_state_reference = [0.65, 0.65, 0.65, 0.65]
+    mpc_input_reference = [1.2, 1.2]
+
+    controller(
+        :tune;
+        project_name = "qtp_test",
+        model_name = "test_2",
+        controller_name = "controller_2",
+        mpc_controller_type = "model_predictive_control",
+        mpc_programming_type = "linear",
+        mpc_horizon = 25,
+        mpc_sample_time = 5,
+        mpc_state_reference = mpc_state_reference,
+        mpc_input_reference = mpc_input_reference,
+    )
+
+
+
+
+
+
+    system(:rm, project_name = "qtp_test", system_name = "system_1",)
+
+    model(:rm, project_name = "qtp_test", model_name = "user_linear")
+
+    project(:rm, name = "qtp_test")
+
+end
+
+
+
+
 
 end

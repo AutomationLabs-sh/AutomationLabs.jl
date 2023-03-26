@@ -20,7 +20,8 @@ function controller(args; kws...)
         return predictive_controller
 
     elseif args == :ls
-        _controller_ls(kws)
+        rslt = _controller_ls(kws)
+        return rslt
 
     elseif args == :rm
         _controller_rm(kws)
@@ -61,18 +62,18 @@ function _controller_ls(kws_)
         return nothing
     end
 
+    # Get user selection for ploting cli 
+    show_all = get(kws, :show_all, false)
+
     controller_table_ls =
         AutomationLabsDepot.list_controller_local_folder_db(string(project_name))
 
-    if size(controller_table_ls, 1) == 0
-        @info "There is no controller in $(project_name) folder"
-
-    elseif size(controller_table_ls, 1) != 0
-        #There is at least a controller in the database
+    # Evaluate if print is requested
+    if show_all == true 
 
         print_table_ls = Array{String}(undef, size(controller_table_ls, 1), 5)
-        for i = 1:1:size(controller_table_ls, 1)
 
+        for i = 1:1:size(controller_table_ls, 1)
             print_table_ls[i, 1] = controller_table_ls[!, :id][i]
             print_table_ls[i, 2] = string(project_name)
             print_table_ls[i, 3] = controller_table_ls[!, :name][i]
@@ -85,11 +86,12 @@ function _controller_ls(kws_)
             header = ["Id", "Project", "Controllers", "Added", "Size"],
             alignment = :l,
             border_crayon = PrettyTables.crayon"blue",
+            tf = PrettyTables.tf_matrix,
         )
-    else
-        @warn "Unrecognized project name"
+        return nothing
     end
-    return nothing
+
+    return controller_table_ls
 end
 
 """
