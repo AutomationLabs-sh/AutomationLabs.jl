@@ -3,6 +3,7 @@
 [![version](https://juliahub.com/docs/AutomationLabs/version.svg)](https://juliahub.com/ui/Packages/AutomationLabs/pZcfU)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 ![CI](https://github.com/AutomationLabs-sh/AutomationLabsDepot.jl/actions/workflows/ci.yml/badge.svg)
+[![codecov](https://codecov.io/gh/AutomationLabs-sh/AutomationLabs.jl/branch/main/graph/badge.svg?token=JQZBIUJYP0)](https://codecov.io/gh/AutomationLabs-sh/AutomationLabs.jl)
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 [![deps](https://juliahub.com/docs/AutomationLabs/deps.svg)](https://juliahub.com/ui/Packages/AutomationLabs/pZcfU?t=2)
 [![Dev docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://automationlabs-sh.github.io/AutomationLabs.jl/)
