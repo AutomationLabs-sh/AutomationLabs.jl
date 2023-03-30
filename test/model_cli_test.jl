@@ -108,7 +108,6 @@ using AutomationLabs
 
 end
 
-
 @testset "Create a user defined linear model discrete" begin
 
     A = [
@@ -134,9 +133,11 @@ end
         nbr_input = nbr_input,
     )
 
-    model_ls_result = model(:ls, project_name = "qtp_test")
     model(:ls, project_name = "qtp_test", show_all = true)
+
+    model_ls_result = model(:ls, project_name = "qtp_test")
     @test size(model_ls_result) == (1, 6) 
+    @test model_ls_result[:, 3] == ["user_linear_1"]
 
     # Remove the model
     model(:rm, project_name = "qtp_test", model_name = "user_linear_1")
@@ -145,20 +146,13 @@ end
 
     # Remove the project
     project(:rm, name = "qtp_test")
-
     pjt_result = project(:ls)
-
     @test size(pjt_result) == (0, 6) 
 
 end
 
-#=
-
 @testset "Create a user defined non linear model discrete" begin
-
-    # not yet working, need serialization on JuliaIO 
-
-    
+   
     g = x -> x^2
 
     nbr_state = 2
@@ -171,20 +165,27 @@ end
     model(
         :create;
         project_name = "qtp_test",
-        model_name = "user_linear_1",
+        model_name = "user_non_linear_1",
         variation = "discrete",
         f = g,
         nbr_state = nbr_state,
         nbr_input = nbr_input,
     )
 
-    model(:ls, project_name = "qtp_test")
+    model(:ls, project_name = "qtp_test", show_all = true)
 
-    model(:rm, project_name = "qtp_test", model_name = "user_linear_1")
+    model_ls_result = model(:ls, project_name = "qtp_test")
+    @test size(model_ls_result) == (1, 6) 
+    @test model_ls_result[:, 3] == ["user_non_linear_1"]
 
+    model(:rm, project_name = "qtp_test", model_name = "user_non_linear_1")
+
+    # Remove the project
     project(:rm, name = "qtp_test")
+    pjt_result = project(:ls)
+    @test size(pjt_result) == (0, 6) 
 
 end
-=#
+
 
 end

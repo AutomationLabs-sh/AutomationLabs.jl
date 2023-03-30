@@ -13,10 +13,12 @@ import AutomationLabsDepot
 import AutomationLabsIdentification
 import AutomationLabsModelPredictiveControl
 import AutomationLabsSystems
-import JLD # need in module: https://github.com/JuliaIO/JLD.jl/issues/252
+#import JLD # need in module: https://github.com/JuliaIO/JLD.jl/issues/252
+import JLD2
 import PrettyTables
 import Dates
 import Random
+import MLJMultivariateStatsInterface
 
 # Export functions
 export data
@@ -35,6 +37,8 @@ include("dash_cli.jl")
 include("controller_cli.jl")
 include("system_cli.jl")
 
+# The temporary controller loaded
 
+controller_loaded_memory = []
 
 end

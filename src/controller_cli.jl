@@ -16,23 +16,28 @@ Example:
 function controller(args; kws...)
 
     if args == :tune
-        predictive_controller = _controller_tune(kws)
-        return predictive_controller
+        results = _controller_tune(kws)
+        return results
 
     elseif args == :ls
-        rslt = _controller_ls(kws)
-        return rslt
+        results = _controller_ls(kws)
+        return results
 
     elseif args == :rm
-        _controller_rm(kws)
+        results = _controller_rm(kws)
+        return results
 
     elseif args == :calculate
-        predictive_controller = _controller_calculate(kws)
-        return predictive_controller
+        result = _controller_calculate(kws)
+        return result
 
     elseif args == :load
         predictive_controller = _controller_load(kws)
         return predictive_controller
+
+    elseif args == :retrieve
+        results = _controller_retrieve(kws)
+        return results
 
     else
         # Wrong arguments
@@ -120,27 +125,16 @@ function _controller_rm(kws_)
         return nothing
     end
 
-    # Remove a data from a project
-    print("Do you want to remove ")
-    printstyled("$(controller_name) ", bold = true)
-    print("from project ")
-    print("$(project_name) [y/n] (y): ")
-    n = readline()
-
-    if n == "y" || n == "yes"
-
-        result = AutomationLabsDepot.remove_controller_local_folder_db(
-            string(project_name),
-            string(controller_name),
-        )
-        if result == true
-            @info "$(controller_name) from project $(project_name) is removed"
-        end
-
-    else
-        @info "$(controller_name) from project $(project_name) is not removed"
+    result = AutomationLabsDepot.remove_controller_local_folder_db(
+        string(project_name),
+        string(controller_name),
+    )
+   
+    if result == true
+        @info "$(controller_name) from project $(project_name) is removed"
     end
-    return nothing
+
+    return result
 end
 
 #NamedTuple default parameters definition
@@ -174,13 +168,15 @@ function _controller_tune(kws_)
         return nothing
     end
 
-    # Get the model name
-    if haskey(kws, :model_name) == true
-        model_name = kws[:model_name]
+    # Get the system name
+    if haskey(kws, :system_name) == true
+        system_name = kws[:system_name]
     else
-        @error "Unrecognized model name"
+        @error "Unrecognized system name"
         return nothing
     end
+
+    system_loaded = AutomationLabsDepot.load_system_local_folder_db(string(project_name), string(system_name))
 
     # Get the controller name choosen by user or get a randomized name
     if haskey(kws, :controller_name) == true
@@ -191,56 +187,13 @@ function _controller_tune(kws_)
         @info "Random controller name is provided: $(controller_name)"
     end
 
-    # Load the model machine mlj from hard drive and database 
-    machine_mlj = AutomationLabsDepot.load_model_local_folder_db(
-        string(project_name),
-        string(model_name),
-    )
-
     # Get mpc implementation type
     if haskey(kws, :mpc_controller_type) == true
         mpc_controller_type = kws[:mpc_controller_type]
     else
         @warn "Unrecognized mpc controller type"
-        mpc_controller_type = "linear"
+        mpc_controller_type = "model_predictive_control"
         @info "Model predictive control implementation method is: $(mpc_controller_type)"
-    end
-
-    if haskey(kws, :mpc_programming_type) == true
-        mpc_programming_type = kws[:mpc_programming_type]
-    else
-        @warn "Unrecognized mpc programming type"
-        mpc_programming_type = "linear"
-        @info "Model predictive control programming method is: $(mpc_programming_type)"
-    end
-
-    # Get the constraints
-    if haskey(kws, :mpc_lower_state_constraints) == true
-        mpc_lower_state_constraints = kws[:mpc_lower_state_constraints]
-    else
-        @error "Unrecognized controller constraints"
-        return nothing
-    end
-
-    if haskey(kws, :mpc_higher_state_constraints) == true
-        mpc_higher_state_constraints = kws[:mpc_higher_state_constraints]
-    else
-        @error "Unrecognized controller constraints"
-        return nothing
-    end
-
-    if haskey(kws, :mpc_lower_input_constraints) == true
-        mpc_lower_input_constraints = kws[:mpc_lower_input_constraints]
-    else
-        @error "Unrecognized controller constraints"
-        return nothing
-    end
-
-    if haskey(kws, :mpc_higher_input_constraints) == true
-        mpc_higher_input_constraints = kws[:mpc_higher_input_constraints]
-    else
-        @error "Unrecognized controller constraints"
-        return nothing
     end
 
     # Get the mpc horizon and sample time 
@@ -273,15 +226,10 @@ function _controller_tune(kws_)
         return nothing
     end
 
-    # Get the mlj type of the mlj machine 
+    # Tune the controller on AutomationLabsModelPredictiveControl
     predictive_controller = AutomationLabsModelPredictiveControl.proceed_controller(
-        machine_mlj,
+        system_loaded,
         mpc_controller_type,
-        mpc_programming_type,
-        mpc_lower_state_constraints,
-        mpc_higher_state_constraints,
-        mpc_lower_input_constraints,
-        mpc_higher_input_constraints,
         mpc_horizon,
         mpc_sample_time,
         mpc_state_reference,
@@ -289,10 +237,16 @@ function _controller_tune(kws_)
         kws,
     )
 
+    # Save the controller jump on memory
+    append!(
+        controller_loaded_memory,
+        [controller_name, kws, predictive_controller]
+    )
+
     # Save the controller on database and hardrive
     if @isdefined(predictive_controller) == true
         #save the model into folder and database
-        AutomationLabsDepot.add_controller_local_folder_db(
+        results_db = AutomationLabsDepot.add_controller_local_folder_db(
             predictive_controller,
             kws,
             project_name,
@@ -300,7 +254,7 @@ function _controller_tune(kws_)
         )
     end
 
-    return predictive_controller
+    return results_db
 end
 
 """
@@ -321,6 +275,17 @@ function _controller_tune_without_save(kws_)
         return nothing
     end
 
+    # Get the system name
+    if haskey(kws, :system_name) == true
+        system_name = kws[:system_name]
+    else
+        @error "Unrecognized system name"
+        return nothing
+    end
+    
+    system_loaded = AutomationLabsDepot.load_system_local_folder_db(string(project_name), string(system_name))
+    
+
     # Get the model name
     if haskey(kws, :model_name) == true
         model_name = kws[:model_name]
@@ -338,56 +303,13 @@ function _controller_tune_without_save(kws_)
         @info "Random controller name is provided: $(controller_name)"
     end
 
-    # Load the model machine mlj from hard drive and database 
-    machine_mlj = AutomationLabsDepot.load_model_local_folder_db(
-        string(project_name),
-        string(model_name),
-    )
-
     # Get mpc implementation type
     if haskey(kws, :mpc_controller_type) == true
         mpc_controller_type = kws[:mpc_controller_type]
     else
         @warn "Unrecognized mpc controller type"
-        mpc_controller_type = "Linear"
+        mpc_controller_type = "model_predictive_control"
         @info "Model predictive control implementation method is: $(mpc_controller_type)"
-    end
-
-    if haskey(kws, :mpc_programming_type) == true
-        mpc_programming_type = kws[:mpc_programming_type]
-    else
-        @warn "Unrecognized mpc programming type"
-        mpc_programming_type = "Linear"
-        @info "Model predictive control programming method is: $(mpc_programming_type)"
-    end
-
-    # Get the constraints
-    if haskey(kws, :mpc_lower_state_constraints) == true
-        mpc_lower_state_constraints = kws[:mpc_lower_state_constraints]
-    else
-        @error "Unrecognized controller constraints"
-        return nothing
-    end
-
-    if haskey(kws, :mpc_higher_state_constraints) == true
-        mpc_higher_state_constraints = kws[:mpc_higher_state_constraints]
-    else
-        @error "Unrecognized controller constraints"
-        return nothing
-    end
-
-    if haskey(kws, :mpc_lower_input_constraints) == true
-        mpc_lower_input_constraints = kws[:mpc_lower_input_constraints]
-    else
-        @error "Unrecognized controller constraints"
-        return nothing
-    end
-
-    if haskey(kws, :mpc_higher_input_constraints) == true
-        mpc_higher_input_constraints = kws[:mpc_higher_input_constraints]
-    else
-        @error "Unrecognized controller constraints"
-        return nothing
     end
 
     # Get the mpc horizon and sample time 
@@ -420,15 +342,10 @@ function _controller_tune_without_save(kws_)
         return nothing
     end
 
-    # Get the mlj type of the mlj machine 
+    # Tune the controller on AutomationLabsModelPredictiveControl
     predictive_controller = AutomationLabsModelPredictiveControl.proceed_controller(
-        machine_mlj,
+        system_loaded,
         mpc_controller_type,
-        mpc_programming_type,
-        mpc_lower_state_constraints,
-        mpc_higher_state_constraints,
-        mpc_lower_input_constraints,
-        mpc_higher_input_constraints,
         mpc_horizon,
         mpc_sample_time,
         mpc_state_reference,
@@ -436,7 +353,15 @@ function _controller_tune_without_save(kws_)
         kws,
     )
 
-    return predictive_controller
+    # Save the controller jump on memory
+    append!(
+        controller_loaded_memory,
+        [controller_name, kws, predictive_controller]
+    )
+
+    #Add verification on flag
+
+    return true
 end
 
 """
@@ -456,23 +381,33 @@ function _controller_calculate(kws_)
         return nothing
     end
 
-    if haskey(kws, :predictive_controller) == true
-        predictive_controller = kws[:predictive_controller]
+    # Get the controller name choosen by user or get a randomized name
+    if haskey(kws, :controller_name) == true
+        controller_name = kws[:controller_name]
     else
-        @error "Unrecognized controller"
+        @error "Unrecognized controller name"
         return nothing
     end
 
+    #Evaluate if the controller is in the controller_loadded_memory
+    global index_controller = findfirst(isequal(controller_name), AutomationLabs.controller_loaded_memory)
+
+   if index_controller == nothing
+        # Load the controller 
+        _controller_load(kws)
+        index_controller = findfirst(isequal(controller_name), AutomationLabs.controller_loaded_memory)
+   end
+
     # Add the initialization for the predictive controller
     AutomationLabsModelPredictiveControl.update_initialization!(
-        predictive_controller,
+        AutomationLabs.controller_loaded_memory[index_controller + 2],
         initialization,
     )
 
     # Calculate the opimization x and u
-    AutomationLabsModelPredictiveControl.calculate!(predictive_controller)
+    AutomationLabsModelPredictiveControl.calculate!(AutomationLabs.controller_loaded_memory[index_controller + 2])
 
-    return predictive_controller
+    return AutomationLabs.controller_loaded_memory[index_controller + 2]
 end
 
 """
@@ -507,4 +442,34 @@ function _controller_load(kws_)
     predictive_controller = _controller_tune_without_save(kws_tune["controller_parameters"])
 
     return predictive_controller
+end
+
+"""
+    _controller_retrieve
+Retrieve a controller for dynamical system control.
+"""
+function _controller_retrieve(kws_)
+
+    # Get argument kws
+    dict_kws = Dict{Symbol,Any}(kws_)
+    kws = get(dict_kws, :kws, kws_)
+
+    # Get the controller name choosen by user or get a randomized name
+    if haskey(kws, :controller_name) == true
+        controller_name = kws[:controller_name]
+    else
+        @error "Unrecognized controller name"
+        return nothing
+    end
+
+    #Evaluate if the controller is in the controller_loadded_memory
+    index_controller = findfirst(isequal(controller_name), AutomationLabs.controller_loaded_memory)
+
+    if index_controller == nothing
+        @error "Controller is not loaded and computed"
+        return nothing
+   end
+
+   return AutomationLabs.controller_loaded_memory[index_controller+2].computation_results
+
 end

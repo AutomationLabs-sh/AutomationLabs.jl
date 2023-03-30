@@ -21,8 +21,11 @@ println("done (took ", took_seconds, " seconds)")
 print("Testing dash cli...")
 took_seconds = @elapsed include("./dash_cli_test.jl");
 println("done (took ", took_seconds, " seconds)")
-#=
+
+print("Testing system cli...")
+took_seconds = @elapsed include("./system_cli_test.jl");
+println("done (took ", took_seconds, " seconds)")
+
 print("Testing controller cli...")
 took_seconds = @elapsed include("./controller_cli_test.jl");
 println("done (took ", took_seconds, " seconds)")
-=#

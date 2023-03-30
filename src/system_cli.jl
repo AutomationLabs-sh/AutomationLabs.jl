@@ -204,10 +204,6 @@ function _system_tune(kws_)
     # Get model name
     if haskey(kws, :model_name) == true
         model_name = kws[:model_name]
-
-        model_method = "discrete"
-        model_origin = "identification"
-
     else
         @error "Unrecognized model name"
         return nothing
@@ -222,21 +218,46 @@ function _system_tune(kws_)
         @info "Random system name is provided: $(system_name)"
     end
 
-    # Get the input constraint 
-#=    if haskey(kws, :input_constraint) == true
-        input_constraint = kws[:input_constraint]
-    end
-
-    # Get the state constraint 
-    if haskey(kws, :state_constraint) == true
-        state_constraint = kws[:state_constraint]
-    end=#
-
     # Load the model machine mlj from hard drive and database 
-    global model_loaded = AutomationLabsDepot.load_model_local_folder_db(
+    model_loaded = AutomationLabsDepot.load_model_local_folder_db(
         string(project_name),
         string(model_name),
     )
+
+    # Evaluate if the model is from AutomationLabsIdentification 
+    if isdefined(model_loaded, :model) == true
+        # It is a machine model from AutomationLabsIdentification
+
+        type_id_model = AutomationLabsSystems._get_mlj_model_type(model_loaded)
+        best_model = AutomationLabsSystems._extract_model_from_machine(
+            type_id_model,
+            model_loaded)
+
+        if haskey(best_model, :A) == true 
+            # It is a linear model 
+            nbr_state = size(best_model[:A], 1)
+            nbr_input = size(best_model[:B], 2)
+
+            variation = "discrete"
+            system_result = AutomationLabsSystems.proceed_system(best_model[:A], best_model[:B], nbr_state, nbr_input, variation; kws) 
+
+        end
+
+        if haskey(best_model, :f) == true 
+            # It is a non linear model
+            nbr_state = size(best_model[:f][end].weight, 1)
+            nbr_input = size(best_model[:f][begin].weight, 2) - size(best_model[:f][end].weight, 1)
+
+            variation = "discrete"
+            system_result = AutomationLabsSystems.proceed_system(best_model[:f], nbr_state, nbr_input, variation; kws) 
+        end
+
+        AutomationLabsDepot.add_system_local_folder_db(system_result, project_name, system_name)
+
+    end
+
+
+    # Evaluate if the model is from user defined linear or non linear
 
     # Evaluation of linear user model
     if isdefined(model_loaded, :A) == true
@@ -249,8 +270,8 @@ function _system_tune(kws_)
             variation = "continuous"
         end
 
-        system = AutomationLabsSystems.proceed_system(model_loaded.A, model_loaded.B, model_loaded.nbr_state, model_loaded.nbr_input, variation; kws) 
-        AutomationLabsDepot.add_system_local_folder_db(system, project_name, system_name)
+        system_result = AutomationLabsSystems.proceed_system(model_loaded.A, model_loaded.B, model_loaded.nbr_state, model_loaded.nbr_input, variation; kws) 
+        AutomationLabsDepot.add_system_local_folder_db(system_result, project_name, system_name)
     end
 
     # Evaluation of non linear user model
@@ -264,9 +285,9 @@ function _system_tune(kws_)
             variation = "continuous"
         end
 
-        system = AutomationLabsSystems.proceed_system(model_loaded.f, model_loaded.nbr_input, variation; kws) 
-        AutomationLabsDepot.add_system_local_folder_db(system, project_name, system_name)
+        system_result = AutomationLabsSystems.proceed_system(model_loaded.f, model_loaded.nbr_input, variation; kws) 
+        AutomationLabsDepot.add_system_local_folder_db(system_result, project_name, system_name)
     end
-
+    
     return nothing
 end

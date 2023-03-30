@@ -1,17 +1,14 @@
-# AutomationLabs Changelog
-
-## v0.1.3
-
-* Improve CLI with tables and show_all.
-* Tests improvement.
-* Documentation improvement.
+# AutomationLabs.jl Changelog
 
 ## v0.1.2
 
-* Add Systems cli.
-* Add model cli :create for user models.
+* Add system management and cli.
+* Add model :create for user models.
+* Improve CLI with prettytables and show_all = true.
+* Save files modification from JLD to JLD2 with automationLabsDepot.jl.
 * Add Github Actions with continuous integration yml.
-* Improve tests for continuous integration.
+* Tests improvement continuous integration.
+* Documentation improvement.
 
 ## v0.1.1
 
