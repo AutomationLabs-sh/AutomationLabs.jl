@@ -18,6 +18,12 @@ AutomationLabs configuration function that manage data.
 julia> model(...)
 ```
 
+AutomationLabs configuration function that manage systems:
+
+```julia
+julia> system(...)
+```
+
 AutomationLabs configuration function that manage controllers:
 
 ```julia

@@ -451,7 +451,7 @@ end
 
 end
 
-@testset "controller a system from user defined discrete linear model" begin
+@testset "Cobntroller from user defined discrete linear model" begin
 
     A = [
         1 1
@@ -539,7 +539,7 @@ end
     @test rslt.e_u != nothing
 
     # Remove the controllers
-    controller(:rm, project_name = "qtp_test", controller_name = "system_user_linear")
+    controller(:rm, project_name = "qtp_test", controller_name = "controller_user_linear")
 
     controller_result = controller(:ls, project_name = "qtp_test")
     @test size(controller_result) == (0, 6)
