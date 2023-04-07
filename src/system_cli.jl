@@ -228,8 +228,8 @@ function _system_tune(kws_)
     if isdefined(model_loaded, :model) == true
         # It is a machine model from AutomationLabsIdentification
 
-        type_id_model = AutomationLabsSystems._get_mlj_model_type(model_loaded)
-        best_model = AutomationLabsSystems._extract_model_from_machine(
+        type_id_model = AutomationLabsIdentification.get_mlj_model_type(model_loaded)
+        best_model = AutomationLabsIdentification.extract_model_from_machine(
             type_id_model,
             model_loaded)
 

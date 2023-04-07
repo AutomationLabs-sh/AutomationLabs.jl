@@ -285,15 +285,6 @@ function _controller_tune_without_save(kws_)
     
     system_loaded = AutomationLabsDepot.load_system_local_folder_db(string(project_name), string(system_name))
     
-
-    # Get the model name
-    if haskey(kws, :model_name) == true
-        model_name = kws[:model_name]
-    else
-        @error "Unrecognized model name"
-        return nothing
-    end
-
     # Get the controller name choosen by user or get a randomized name
     if haskey(kws, :controller_name) == true
         controller_name = kws[:controller_name]
@@ -343,7 +334,7 @@ function _controller_tune_without_save(kws_)
     end
 
     # Tune the controller on AutomationLabsModelPredictiveControl
-    predictive_controller = AutomationLabsModelPredictiveControl.proceed_controller(
+    global predictive_controller = AutomationLabsModelPredictiveControl.proceed_controller(
         system_loaded,
         mpc_controller_type,
         mpc_horizon,
@@ -361,7 +352,7 @@ function _controller_tune_without_save(kws_)
 
     #Add verification on flag
 
-    return true
+    return predictive_controller
 end
 
 """
@@ -436,10 +427,10 @@ function _controller_load(kws_)
         return nothing
     end
 
-    kws_tune =
+   kws_tune =
         AutomationLabsDepot.load_controller_local_folder_db(project_name, controller_name)
 
-    predictive_controller = _controller_tune_without_save(kws_tune["controller_parameters"])
+    predictive_controller = AutomationLabs._controller_tune_without_save(kws_tune)
 
     return predictive_controller
 end

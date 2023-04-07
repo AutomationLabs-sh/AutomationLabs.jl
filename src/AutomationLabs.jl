@@ -13,6 +13,7 @@ import AutomationLabsDepot
 import AutomationLabsIdentification
 import AutomationLabsModelPredictiveControl
 import AutomationLabsSystems
+import AutomationLabsExportation
 #import JLD # need in module: https://github.com/JuliaIO/JLD.jl/issues/252
 import JLD2
 import PrettyTables
@@ -28,6 +29,7 @@ export config
 export dash
 export controller
 export system
+export exportation
 
 # Load files
 include("data_cli.jl")
@@ -36,6 +38,7 @@ include("project_cli.jl")
 include("dash_cli.jl")
 include("controller_cli.jl")
 include("system_cli.jl")
+include("exportation_cli.jl")
 
 # The temporary controller loaded
 

@@ -3,11 +3,12 @@
 ## v0.1.2
 
 * Add system management and cli.
-* Add model :create for user models.
+* Add user models creation.
+* Add controller exportation and cli.
 * Improve CLI with prettytables and show_all = true.
-* Save files modification from JLD to JLD2 with automationLabsDepot.jl.
+* Files saving modification from JLD to JLD2.
 * Add Github Actions with continuous integration yml.
-* Tests improvement continuous integration.
+* Tests improvement.
 * Documentation improvement.
 
 ## v0.1.1

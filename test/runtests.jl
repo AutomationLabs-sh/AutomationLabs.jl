@@ -29,3 +29,7 @@ println("done (took ", took_seconds, " seconds)")
 print("Testing controller cli...")
 took_seconds = @elapsed include("./controller_cli_test.jl");
 println("done (took ", took_seconds, " seconds)")
+
+print("Testing exportation cli...")
+took_seconds = @elapsed include("./exportation_cli_test.jl");
+println("done (took ", took_seconds, " seconds)")

@@ -85,6 +85,7 @@ function _project_ls(kws_)
     models_tab = []
     controller_tab = []
     system_tab = []
+    exportation_tab = []
 
     # Get Data, Dash, Models, Systems, Controllers 
     for i in project_table_ls
@@ -95,24 +96,26 @@ function _project_ls(kws_)
         model_table_ls = AutomationLabsDepot.list_model_local_folder_db(string(i))
         controller_table_ls = AutomationLabsDepot.list_controller_local_folder_db(string(i))
         system_table_ls = AutomationLabsDepot.list_system_local_folder_db(string(i))
+        exportation_table_ls = AutomationLabsDepot.list_exportation_local_folder_db(string(i))
 
         append!(data_tab, size(data_table_iols, 1) + size(data_table_rawls, 1))
         append!(dash_tab, size(dash_table_ls, 1))
         append!(models_tab, size(model_table_ls, 1))
         append!(controller_tab, size(controller_table_ls, 1))
         append!(system_tab, size(system_table_ls, 1))
+        append!(exportation_tab, size(exportation_table_ls, 1))
 
     end
 
     # Concatenate the tables
-    tab = hcat(project_table_ls, data_tab, dash_tab, models_tab, system_tab, controller_tab)
+    tab = hcat(project_table_ls, data_tab, dash_tab, models_tab, system_tab, controller_tab, exportation_tab)
     
     # Evaluate if print is requested
     if show_all == true 
         # Print pretty table
         PrettyTables.pretty_table(
             tab;
-            header = [ "Project", "Data", "Dashboards", "Models", "Systems", "Controllers"#,"Dash status","Models status","Systems status" 
+            header = [ "Project", "Data", "Dashboards", "Models", "Systems", "Controllers", "Exportations" #"Dash status","Models status","Systems status" 
                         ],
             alignment = :l,
             border_crayon = PrettyTables.crayon"blue",
