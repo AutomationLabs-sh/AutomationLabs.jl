@@ -46,7 +46,7 @@ using AutomationLabs
     project(:rm, name = "qtp_test")
 
     pjt_result = project(:ls)
-    @test size(pjt_result) == (0, 6) 
+    @test size(pjt_result) == (0, 7) 
    
 end
 
@@ -87,7 +87,7 @@ end
     project(:rm, name = "qtp_test")
 
     pjt_result = project(:ls)
-    @test size(pjt_result) == (0, 6) 
+    @test size(pjt_result) == (0, 7) 
 end
 
 @testset "Dash test dash box io data" begin
@@ -145,7 +145,7 @@ end
     project(:rm, name = "qtp_test")
 
     pjt_result = project(:ls)
-    @test size(pjt_result) == (0, 6) 
+    @test size(pjt_result) == (0, 7) 
    
 end
 
@@ -206,7 +206,7 @@ end
     project(:rm, name = "qtp_test")
 
     pjt_result = project(:ls)
-    @test size(pjt_result) == (0, 6) 
+    @test size(pjt_result) == (0, 7) 
    
 end
 

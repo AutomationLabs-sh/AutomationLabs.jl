@@ -147,7 +147,7 @@ end
     # Remove the project
     project(:rm, name = "qtp_test")
     pjt_result = project(:ls)
-    @test size(pjt_result) == (0, 6) 
+    @test size(pjt_result) == (0, 7) 
 
 end
 
@@ -183,7 +183,7 @@ end
     # Remove the project
     project(:rm, name = "qtp_test")
     pjt_result = project(:ls)
-    @test size(pjt_result) == (0, 6) 
+    @test size(pjt_result) == (0, 7) 
 
 end
 
