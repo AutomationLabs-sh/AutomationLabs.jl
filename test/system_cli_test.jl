@@ -118,6 +118,40 @@ using AutomationLabs
     @test size(sys_3) == (3, 6)
     @test sys_3[:, 3] == ["system_1"; "system_ucons"; "system_xcons_ucons"]
 
+    # Stats the systems 
+    sys_stats_1 = system(:stats,
+        project_name = "qtp_test", 
+        system_name = "system_1",
+    )
+    system(:stats,
+        project_name = "qtp_test", 
+        system_name = "system_1",
+        show_all = true
+    )
+    @test size(sys_stats_1) == (3,)
+
+    sys_stats_ucons = system(:stats,
+        project_name = "qtp_test", 
+        system_name = "system_ucons",
+    )
+    system(:stats,
+        project_name = "qtp_test", 
+        system_name = "system_ucons",
+        show_all = true
+    )   
+    @test size(sys_stats_ucons) == (3,)
+
+    sys_stats_xuconbs = system(:stats,
+           project_name = "qtp_test", 
+           system_name = "system_xcons_ucons",
+
+    )
+    system(:stats,
+           project_name = "qtp_test", 
+           system_name = "system_xcons_ucons",
+           show_all = true
+    )
+    @test size(sys_stats_xuconbs) == (3,)
 
     ### Linear system from identification
 
@@ -254,6 +288,19 @@ end
     @test size(sys_6) == (1, 6)
     @test sys_6[:, 3] == ["system_1"]
 
+    # Stats the system 
+    sys_stats = system(:stats,
+        project_name = "qtp_test", 
+        system_name = "system_1",
+    )
+    @test size(sys_stats) == (3,)
+
+    system(:stats,
+        project_name = "qtp_test", 
+        system_name = "system_1",
+        show_all = true,
+    )
+
     # Delete the system and the model
     system(:rm, project_name = "qtp_test", system_name = "system_1",)
     model(:rm, project_name = "qtp_test", model_name = "user_linear")
@@ -268,6 +315,41 @@ end
     project(:rm, name = "qtp_test")
 
 end
+
+@testset "System error message test" begin
+
+    project(:create, name = "qtp_test")
+
+    project(:ls)
+
+    # Wrong arguments
+    system(:gt)
+
+    # Wrong ls 
+    system(:ls, project_name = "qtp_test", show_all = true)
+    rslt = system(:ls, project_name = "gt")
+    @test size(rslt) == (0, 6)
+
+    # Wrong rm 
+    rslt = system(:rm, project_name = "qtp_test")
+    @test rslt == nothing
+    rslt = system(:rm, system_name = "gt")
+    @test rslt == nothing
+
+    # Wrong stats 
+    rslt = system(:stats, project_name = "qtp_test")
+    @test rslt == nothing
+    rslt = system(:stats, system_name = "gt")
+    @test rslt == nothing
+
+    # Wrong tune 
+    rlst = system(:tune, project_name = "qtp_test")
+    @test rslt == nothing
+    rlst = system(:tune, model_name = "gt")
+    @test rslt == nothing
+
+end
+
 
 
 end

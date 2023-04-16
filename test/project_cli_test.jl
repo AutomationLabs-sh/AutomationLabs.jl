@@ -34,4 +34,32 @@ using AutomationLabs
 
 end
 
+@testset "Project error message test" begin
+
+    # Wrong args
+    project(:gt)
+
+    # Create a project with random name
+    rslt = project(:create)
+    @test rslt == true
+
+    # List project
+    pjt = project(:ls)
+    project(:ls, show_all = true)
+    @test size(pjt) == (1, 7)
+
+    # Remove project
+    rslt = project(:rm, name = "gt")
+    @test rslt == false
+
+    rslt = project(:rm, name = pjt[1])
+    @test rslt == true
+
+    # List project
+    pjt = project(:ls)
+    project(:ls, show_all = true)
+    @test size(pjt) == (0, 7)
+
+end
+
 end

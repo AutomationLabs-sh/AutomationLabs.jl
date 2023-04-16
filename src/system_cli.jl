@@ -30,7 +30,8 @@ function system(args; kws...)
        return sys
 
     elseif args == :stats 
-        _system_stats(kws)
+        sys_stats = _system_stats(kws)
+        return sys_stats
 
     else
         # Wrong arguments
@@ -155,32 +156,41 @@ function _system_stats(kws_)
         return nothing
     end
 
+    # Get user selection for ploting cli 
+    show_all = get(kws, :show_all, false)
 
     stats_ls_system = AutomationLabsDepot.stats_system_local_folder_db(
         string(project_name),
         string(system_name),
     )
 
-    print_table_ls = Array{Any}(undef, 1, 8)
+    # Evaluate if print is requested
+    if show_all == true 
 
-    print_table_ls[1, 1] = system_name
-    print_table_ls[1, 2] = stats_ls_system[1, 1]
-    print_table_ls[1, 3] = stats_ls_system[2, 1]
-    print_table_ls[1, 4] = stats_ls_system[3, 1]
+        print_table_ls = Array{Any}(undef, 1, 4)
 
-    PrettyTables.pretty_table(
-        print_table_ls;
-        header = [
-            "System",
-            "Type",
-            "Input constraint",
-            "State constraint",
-        ],
-        alignment = :l,
-        border_crayon = PrettyTables.crayon"blue",
-    )
+        print_table_ls[1, 1] = system_name
+        print_table_ls[1, 2] = stats_ls_system[1, 1]
+        print_table_ls[1, 3] = stats_ls_system[2, 1]
+        print_table_ls[1, 4] = stats_ls_system[3, 1]
 
-    return nothing
+        PrettyTables.pretty_table(
+            print_table_ls;
+            header = [
+                "System name",
+                "Type",
+                "State constraint",
+                "Input constraint",
+            ],
+            alignment = :l,
+            border_crayon = PrettyTables.crayon"blue",
+            tf = PrettyTables.tf_matrix,
+        )
+
+        return nothing
+    end
+
+    return stats_ls_system
 end
 
 """
