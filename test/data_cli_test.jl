@@ -76,4 +76,54 @@ using AutomationLabs
 
 end
 
+@testset "Data error message test" begin
+
+    rslt = data(:ki)
+    @test rslt == nothing
+
+    rslt = data(:add, project_ = "1")
+    @test rslt == nothing
+
+    rslt = data(:add, project = "1")
+    @test rslt == nothing
+
+    rslt = data(:add, project_name = "1")
+    @test rslt == nothing
+
+    rslt = data(:add, project_name = "1", path = "1")
+    @test rslt == nothing
+
+    rslt = data(:lsio, project = "1")
+    @test rslt == nothing
+
+    rslt = data(:lsraw, project = "1")
+    @test rslt == nothing
+
+    rslt = data(:rmio, project = "1")
+    @test rslt == nothing
+
+    rslt = data(:rmraw, project = "1")
+    @test rslt == nothing
+
+    rslt = data(:rmio, project_name = "1")
+    @test rslt == nothing
+
+    rslt = data(:rmraw, project_name = "1")
+    @test rslt == nothing
+
+    rslt = data(:io, project = "1")
+    @test rslt == nothing
+
+    rslt = data(:io, project_name = "1")
+    @test rslt == nothing
+
+    rslt = data(:io, project_name = "1", inputs_data_name = "1")
+    @test rslt == nothing
+
+    #rslt = data(:io, project_name = "1", inputs_data_name = "1", outputs_data_name = "1")
+    #@test rslt == nothing
+    # Add a protect
+
+end
+
 end

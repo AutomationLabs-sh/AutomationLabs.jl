@@ -210,4 +210,50 @@ end
    
 end
 
+@testset "Dash error message test" begin
+
+    rslt = dash(:ki)
+    @test rslt == nothing
+
+    rslt = dash(:rawdata, project_ = "1")
+    @test rslt == nothing
+
+    rslt = dash(:rawdata, project_name = "1")
+    @test rslt == nothing
+
+    rslt = dash(:rawdata, project_name = "1", data_name = "1")
+    @test rslt == nothing
+
+    rslt = dash(:rawdata, project_name = "1", data_name = "1", recipe = "1")
+    @test rslt == nothing
+
+    rslt = dash(:iodata, project_ = "1")
+    @test rslt == nothing
+
+    rslt = dash(:iodata, project_name = "1")
+    @test rslt == nothing
+
+    rslt = dash(:iodata, project_name = "1", data_name = "1")
+    @test rslt == nothing
+
+    rslt = dash(:iodata, project_name = "1", data_name = "1", recipe = "1")
+    @test rslt == nothing
+
+    rslt = dash(:model, project_ = "1")
+    @test rslt == nothing
+
+    rslt = dash(:model, project_name = "1")
+    @test rslt == nothing
+
+    rslt = dash(:ls, project = "1")
+    @test rslt == nothing
+
+    rslt = dash(:rm, project = "1")
+    @test rslt == nothing
+
+    rslt = dash(:rm, project_name = "1")
+    @test rslt == nothing
+
+end
+
 end

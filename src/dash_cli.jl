@@ -37,6 +37,7 @@ function dash(args; kws...)
     else
         # Wrong arguments
         @error "Unrecognized argument"
+        result = nothing
     end
 
     #to do more?

@@ -207,4 +207,32 @@ using Dates
 
 end
 
+@testset "Exportation error message test" begin
+
+    rslt = exportation(:ki)
+    @test rslt == nothing
+
+    rslt = exportation(:ls, project_ = "1")
+    @test rslt == nothing
+
+    rslt = exportation(:rm, project = "1")
+    @test rslt == nothing
+
+    rslt = exportation(:rm, project_name = "1")
+    @test rslt == nothing
+
+    rslt = exportation(:tune, project = "1")
+    @test rslt == nothing
+
+    rslt = exportation(:tune, project_name = "1")
+    @test rslt == nothing
+
+    rslt = exportation(:tune, project_name = "1", model_name = "1")
+    @test rslt == true #should be false or nothing
+
+    #rslt = exportation(:tune, project_name = "1", controller_name = "1")
+    #@test rslt == true
+
+end
+
 end

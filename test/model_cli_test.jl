@@ -187,5 +187,54 @@ end
 
 end
 
+@testset "Model error message test" begin
+
+    rslt = model(:ki)
+    @test rslt == nothing
+
+    rslt = model(:tune, projectç = "1")
+    @test rslt == nothing
+
+    rslt = model(:tune, project_name = "1")
+    @test rslt == nothing
+
+    #rslt = model(:tune, project_name = "1", io = "1") return issue
+    #@test rslt == nothing
+
+    rslt = model(:ls, projectc = "1")
+    @test rslt == nothing
+
+    rslt = model(:rm, project = "1")
+    @test rslt == nothing
+
+    rslt = model(:rm, project_name = "1")
+    @test rslt == nothing
+
+    rslt = model(:stats, project = "1")
+    @test rslt == nothing
+
+    rslt = model(:stats, project_name = "1")
+    @test rslt == nothing
+
+    rslt = model(:create, project = "1")
+    @test rslt == nothing
+
+    rslt = model(:create, project_name = "1")
+    @test rslt == nothing
+
+    rslt = model(:create, project_name = "1", model_anme = "1")
+    @test rslt == nothing
+
+    rslt = model(:create, project_name = "1", model_anme = "1", nbr_state = 2)
+    @test rslt == nothing
+
+    rslt = model(:create, project_name = "1", model_anme = "1", nbr_state = 2, nbr_input = 2)
+    @test rslt == nothing
+
+    rslt = model(:create, project_name = "1", model_anme = "1", nbr_state = 2, nbr_input = 2, variation = "1")
+    @test rslt == nothing
+
+end
+
 
 end

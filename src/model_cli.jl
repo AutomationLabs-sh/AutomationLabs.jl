@@ -38,6 +38,7 @@ function model(args; kws...)
     else
         # Wrong arguments
         @error "Unrecognized argument"
+        rslt = nothing
     end
 
     #to do more?

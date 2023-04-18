@@ -39,6 +39,7 @@ function data(args; kws...)
     else
         # Wrong arguments
         @error "Unrecognized argument"
+        rslt = nothing
     end
 
     return rslt

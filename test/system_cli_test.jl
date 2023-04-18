@@ -329,6 +329,8 @@ end
     system(:ls, project_name = "qtp_test", show_all = true)
     rslt = system(:ls, project_name = "gt")
     @test size(rslt) == (0, 6)
+    rslt = system(:ls, project_namezz = "gt")
+    @test rslt == nothing
 
     # Wrong rm 
     rslt = system(:rm, project_name = "qtp_test")

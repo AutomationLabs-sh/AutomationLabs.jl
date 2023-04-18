@@ -574,4 +574,51 @@ end
 
 end
 
+@testset "Controller error message test" begin
+
+    rslt = controller(:ki)
+    @test rslt == nothing
+
+    rslt = controller(:ls, project_ = "1")
+    @test rslt == nothing
+
+    rslt = controller(:rm, project = "1")
+    @test rslt == nothing
+
+    rslt = controller(:rm, project_name = "1")
+    @test rslt == nothing
+
+    rslt = controller(:tune, project = "1")
+    @test rslt == nothing
+
+    rslt = controller(:tune, project_name = "1")
+    @test rslt == nothing
+
+    rslt = controller(:tune, project_name = "1", system_name = "1")
+    @test rslt == nothing
+
+    rslt = controller(:tune, project_name = "1", system_name = "1", mpc_horizon = 1)
+    @test rslt == nothing
+
+    rslt = controller(:tune, project_name = "1", system_name = "1", mpc_horizon = 1, mpc_sample_time = 5)
+    @test rslt == nothing
+
+    rslt = controller(:tune, project_name = "1", system_name = "1", mpc_horizon = 1, mpc_sample_time = 5, mpc_state_reference = 1)
+    @test rslt == nothing
+
+    rslt = controller(:calculate)
+    @test rslt == nothing
+
+    rslt = controller(:calculate, initialization = 1)
+    @test rslt == nothing
+
+    #rslt = controller(:calculate, initialization = 1, controller_name = "1")
+    #@test rslt == nothing
+
+    rslt = controller(:retrieve)
+    @test rslt == nothing
+
+end
+
+
 end

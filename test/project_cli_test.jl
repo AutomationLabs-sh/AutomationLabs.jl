@@ -52,6 +52,9 @@ end
     rslt = project(:rm, name = "gt")
     @test rslt == false
 
+    rslt = project(:rm, namez = "gt")
+    @test rslt == nothing
+
     rslt = project(:rm, name = pjt[1])
     @test rslt == true
 
