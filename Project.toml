@@ -18,6 +18,7 @@ Term = "22787eb5-b846-44ae-b979-8e399b8463ab"
 
 [compat]
 AutomationLabsDepot = "0.1"
+AutomationLabsExportation = "0.1"
 AutomationLabsIdentification = "0.2"
 AutomationLabsModelPredictiveControl = "0.1"
 JLD2 = "0.4"
